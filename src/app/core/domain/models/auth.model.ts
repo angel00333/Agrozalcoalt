@@ -5,5 +5,5 @@ export interface LoginCredentials {
 
 export interface RegisterData extends LoginCredentials {
   nombre: string;
-  rol: 'Agricultor' | 'Comprador';
+  rol: 'Agricultor' | 'Comprador' | 'Admin';
 }

@@ -1,12 +1,19 @@
-import { Injectable } from '@angular/core';
-import { RegisterData } from '../../domain/models/auth.model';
-import { AuthRepository } from '../../domain/repositories/auth.repository';
 
-@Injectable({ providedIn: 'root' })
+import { Injectable, inject } from '@angular/core';
+
+import {
+  AuthRepository,
+  DatosRegistro
+} from '../../domain/repositories/auth.repository';
+
+@Injectable({
+  providedIn: 'root'
+})
 export class RegisterUseCase {
-  constructor(private readonly repository: AuthRepository) {}
 
-  execute(data: RegisterData) {
-    return this.repository.register(data);
+  private readonly repository = inject(AuthRepository);
+
+  execute(datos: DatosRegistro, password: string) {
+    return this.repository.registrar(datos, password);
   }
 }

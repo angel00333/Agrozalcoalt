@@ -1,17 +1,18 @@
-export type TipoProducto = 'cosecha' | 'insumo';
 
 export interface Producto {
-  id: string;
-  nombre: string;
-  tipo: TipoProducto;
-  categoria: string;
-  precio: number;
-  unidad: string;
-  cantidad: number;
-  ubicacion: string;
-  vendedor: string;
-  emoji: string;
-  descripcion: string;
-}
+    id?: string;
+    nombre: string;
+    descripcion: string;
+    precio: number;
+    cantidadDisponible: number;
+    categoria: string;
+    estado: string;
+    fotos: string;
+    ubicacion: string;
+    unidad: string;
+    creadosEn?: Date | null;
 
-export type NuevoProducto = Omit<Producto, 'id'>;
+    // Propiedades opcionales para la interfaz actual
+    emoji?: string;
+    vendedor?: string;
+}

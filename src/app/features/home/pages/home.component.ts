@@ -2,7 +2,6 @@ import { CurrencyPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Producto } from '../../../core/domain/models/producto.model';
-import { GetProductsUseCase } from '../../../core/use-cases/products/get-products.use-case';
 
 @Component({
   selector: 'app-home',
@@ -229,8 +228,8 @@ import { GetProductsUseCase } from '../../../core/use-cases/products/get-product
     }
   `],
 })
-export class HomePageComponent implements OnInit {
-  private readonly getProducts = inject(GetProductsUseCase);
+export class HomePageComponent {
+
   readonly destacados = signal<Producto[]>([]);
 
   readonly features = [
@@ -260,8 +259,5 @@ export class HomePageComponent implements OnInit {
     },
   ];
 
-  async ngOnInit() {
-    const products = await this.getProducts.execute();
-    this.destacados.set(products.slice(0, 4));
-  }
+
 }

@@ -1,8 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { UserProfile } from '../../../core/domain/models/user-profile.model';
+import { Usuarios as UserProfile } from '../../../core/domain/models/user.model';
 import { LogoutUseCase } from '../../../core/use-cases/auth/logout.use-case';
-import { GetUserProfileUseCase } from '../../../core/use-cases/user/get-user-profile.use-case';
+import { GetUserProfileUseCase } from '../../../core/use-cases/user/get-user.profile.use-case';
+import { AuthSessionService } from '../../../shared/services/auth-session.service';
 
 @Component({
   selector: 'app-profile',
@@ -14,13 +15,16 @@ import { GetUserProfileUseCase } from '../../../core/use-cases/user/get-user-pro
           <span class="material-icons-round text-5xl">agriculture</span>
         </div>
         <h1 class="mt-3 text-xl font-bold">{{ user.nombre }}</h1>
-        <p class="text-sm text-earth">{{ user.rol }} · {{ user.ubicacion }}</p>
+        <p class="text-sm text-earth">{{ user.rol }} · {{ user.departamento }}</p>
       </div>
 
       <div class="grid grid-cols-3 gap-3 mt-5 text-center">
-        <div class="bg-white rounded-2xl p-3 border"><p class="text-2xl font-bold text-brand">{{ user.productos }}</p><p class="text-xs">Productos</p></div>
-        <div class="bg-white rounded-2xl p-3 border"><p class="text-2xl font-bold text-brand">{{ user.pedidos }}</p><p class="text-xs">Pedidos</p></div>
-        <div class="bg-white rounded-2xl p-3 border"><p class="text-2xl font-bold text-brand">{{ user.valoracion }}</p><p class="text-xs">Valoración</p></div>
+        <p class="text-brand">—</p>
+        <p class="text-xs">Productos</p>
+        <p class="text-brand">—</p>
+<p class="text-xs">Pedidos</p>
+<p class="text-brand">—</p>
+<p class="text-xs">Pedidos</p>
       </div>
     }
 
@@ -35,15 +39,31 @@ import { GetUserProfileUseCase } from '../../../core/use-cases/user/get-user-pro
     </button>
   `,
 })
+
 export class ProfilePageComponent implements OnInit {
+
   private readonly getUserProfile = inject(GetUserProfileUseCase);
   private readonly logout = inject(LogoutUseCase);
   private readonly router = inject(Router);
+  private readonly authSession = inject(AuthSessionService);
 
   readonly profile = signal<UserProfile | null>(null);
 
   async ngOnInit() {
-    this.profile.set(await this.getUserProfile.execute());
+    try {
+      const uid = await this.authSession.obtenerUid();
+
+      if (!uid) {
+        await this.router.navigateByUrl('/login');
+        return;
+      }
+
+      const usuario = await this.getUserProfile.execute(uid);
+      this.profile.set(usuario);
+
+    } catch (error) {
+      console.error('Error al cargar perfil:', error);
+    }
   }
 
   async salir() {

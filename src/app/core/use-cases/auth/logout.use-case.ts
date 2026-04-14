@@ -1,11 +1,17 @@
-import { Injectable } from '@angular/core';
-import { AuthRepository } from '../../domain/repositories/auth.repository';
 
-@Injectable({ providedIn: 'root' })
+import { Injectable, inject } from '@angular/core';
+
+import { AuthRepository } from
+  '../../domain/repositories/auth.repository';
+
+@Injectable({
+  providedIn: 'root'
+})
 export class LogoutUseCase {
-  constructor(private readonly repository: AuthRepository) {}
 
-  execute() {
+  private readonly repository = inject(AuthRepository);
+
+  execute(): Promise<void> {
     return this.repository.logout();
   }
 }

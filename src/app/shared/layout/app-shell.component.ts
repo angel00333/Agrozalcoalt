@@ -52,7 +52,8 @@ import { AuthSessionService } from '../services/auth-session.service';
           @for (item of desktopItems; track item.link) {
 
             @if (
-              item.link !== '/publicar' ||
+              item.link !== '/publicar' &&
+              item.link !== '/mis-publicaciones' ||
               (
                 !sesion.cargandoRol() &&
                 sesion.autenticado() &&
@@ -285,6 +286,7 @@ export class AppShellComponent {
     { link: '/', label: 'Inicio' },
     { link: '/productos', label: 'Catálogo' },
     { link: '/publicar', label: 'Publicar' },
+    { link: '/mis-publicaciones', label: 'Mis publicaciones' },
     { link: '/asesoria', label: 'Asesoría' }
   ];
 

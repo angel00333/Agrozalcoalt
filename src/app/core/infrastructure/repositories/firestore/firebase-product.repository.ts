@@ -4,19 +4,23 @@ import { Injectable } from '@angular/core';
 import {
     addDoc,
     collection,
+    doc,
+    getDoc,
     getDocs,
     query,
     where,
     serverTimestamp,
     Timestamp,
-    QueryDocumentSnapshot,
-    DocumentData
+    DocumentSnapshot,
+    DocumentData,
+    runTransaction
 } from 'firebase/firestore';
 
-import { db } from './firebase.config';
+import { db, auth } from './firebase.config';
 
 import { Producto } from '../../../domain/models/producto.model';
-import { ProductRepository } from '../../../domain/repositories/product.repository';
+import { ProductRepository, CambiosProductos } from '../../../domain/repositories/product.repository';
+
 
 @Injectable()
 export class FirebaseProductRepository extends ProductRepository {
@@ -74,16 +78,101 @@ export class FirebaseProductRepository extends ProductRepository {
             this.convertirProducto(documento)
         );
     }
+    // ==========================================
+    // 4. CONSULTAR PRODUCTO POR ID
+    // ==========================================
+
+    override async obtenerProductoPorId(id: string): Promise<Producto | null> {
+        const referencia = doc(db, 'productos', id);
+        const resultado = await getDoc(referencia);
+        if (!resultado.exists()) {
+            return null;
+        }
+        return this.convertirProducto(resultado);
+
+    }
+
+    // ==========================================
+    // 5. ACTUALIZAR PRODUCTO
+    // ==========================================
+
+    async actualizarProducto(
+        id: string,
+        vendedorUID: string,
+        cambios: CambiosProductos
+    ): Promise<void> {
+
+        // Comprobar que el UID pertenezca a la sesión.
+        if (auth.currentUser?.uid !== vendedorUID) {
+            throw new Error(
+                'No tienes permiso para modificar este producto.'
+            );
+        }
+
+        const referencia = doc(db, 'productos', id);
+
+        await runTransaction(db, async (transaccion) => {
+
+            const resultado = await transaccion.get(referencia);
+
+            if (!resultado.exists()) {
+                throw new Error('El producto no existe.');
+            }
+
+            const datos = resultado.data();
+
+            // Verificar que el agricultor sea el propietario.
+            if (datos['vendedorUID'] !== vendedorUID) {
+                throw new Error(
+                    'Este producto pertenece a otro agricultor.'
+                );
+            }
+
+            // Conservar existencias anteriores si no se modifican.
+            const cantidad =
+                cambios.cantidadDisponible ??
+                datos['cantidadDisponible'];
+
+            // Actualizar el estado según las existencias.
+            const estado =
+                datos['estado'] === 'inactivo'
+                    ? 'inactivo'
+                    : cantidad === 0
+                        ? 'agotado'
+                        : 'publicado';
+
+            // Evitar campos undefined en Firestore.
+            const cambiosValidos = Object.fromEntries(
+                Object.entries(cambios).filter(
+                    ([, valor]) => valor !== undefined
+                )
+            );
+
+            transaccion.update(referencia, {
+                ...cambiosValidos,
+                estado,
+                actualizadoEn: serverTimestamp()
+            });
+
+        });
+
+    }
 
 
     // ==========================================
-    // 4. CONVERTIR DATOS DE FIRESTORE AL MODELO
+    // 6. CONVERTIR DATOS DE FIRESTORE AL MODELO
     // ==========================================
     private convertirProducto(
-        documento: QueryDocumentSnapshot<DocumentData>
+        documento: DocumentSnapshot<DocumentData>
     ): Producto {
 
         const datos = documento.data();
+        //Verificcamos el documento que contenda la la info
+        if (!datos) {
+            throw new Error(
+                'No se encontraron los datos del producto'
+            );
+        }
 
         return {
             ...datos,

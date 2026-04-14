@@ -1,5 +1,19 @@
 import { Producto } from "../models/producto.model";
 
+export type CambiosProductos = Partial<Pick<
+    Producto,
+    | 'nombre'
+    | 'descripcion'
+    | 'categoria'
+    | 'unidad'
+    | 'precio'
+    | 'cantidadDisponible'
+    | 'ubicacion'
+    | 'fotos'
+
+
+>>;
+
 export abstract class ProductRepository {
 
     /*
@@ -27,6 +41,19 @@ export abstract class ProductRepository {
         vendedorUid: string
     ): Promise<Producto[]>;
 
+    //Obtenemos el prod para cargar de su form de edicion.
+
+    abstract obtenerProductoPorId(
+        id: string
+    ): Promise<Producto | null>;
+
+    // Actualizar uuna d las publications existents XD
+    abstract actualizarProducto(
+
+        id: string,
+        vendedorUID: string,
+        cambios: CambiosProductos
+    ): Promise<void>;
 
 
 }

@@ -76,6 +76,19 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
                     Publicar cosecha
                   </a>
 
+                  <!-- Consultar las publicaciones del agricultor -->
+                  <a
+                    routerLink="/mis-publicaciones"
+                    class="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/40 bg-white/10 px-5 py-3 font-semibold text-white backdrop-blur hover:bg-white/15"
+                  >
+                    <span class="material-icons-round">
+                      inventory_2
+                    </span>
+
+                    Mis publicaciones
+                  </a>
+
+
                 } @else {
 
                   <a

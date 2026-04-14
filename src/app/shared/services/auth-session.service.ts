@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, onSnapshot, getDoc } from 'firebase/firestore';
 
+
 import { auth, db } from
     '../../core/infrastructure/repositories/firestore/firebase.config';
 @Injectable({
@@ -65,6 +66,13 @@ export class AuthSessionService {
     // Este método también lo utiliza ProfilePageComponent.
     async obtenerUid(): Promise<string | null> {
         await auth.authStateReady();
+
         return auth.currentUser?.uid ?? null;
     }
+
+
+
+
+
+
 }

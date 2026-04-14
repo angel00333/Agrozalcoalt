@@ -42,3 +42,21 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+# ======================================
+# CONFIGURACIÓN LOCAL DE AGROZALCOALT
+# ======================================
+
+
+#Configuracion del entorno DB
+src/environments/environment.ts
+
+#Config local de Firebase
+src/app/core/infrastructure/repositories/firestore/firebase-auth.repository.ts
+src/app/core/infrastructure/repositories/firestore/firebase.config.ts
+src/app/core/infrastructure/repositories/fireb-user.repository.ts
+
+# Archivos de variables privadas
+.env
+.env.local
+.env.*
+!.env.example

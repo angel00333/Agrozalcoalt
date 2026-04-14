@@ -22,9 +22,9 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
         <p class="text-brand">—</p>
         <p class="text-xs">Productos</p>
         <p class="text-brand">—</p>
-<p class="text-xs">Pedidos</p>
-<p class="text-brand">—</p>
-<p class="text-xs">Pedidos</p>
+        <p class="text-xs">Pedidos</p>
+        <p class="text-brand">—</p>
+        <p class="text-xs">Pedidos</p>
       </div>
     }
 

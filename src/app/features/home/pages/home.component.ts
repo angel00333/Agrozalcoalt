@@ -64,11 +64,19 @@ import { Producto } from '../../../core/domain/models/producto.model';
             ></span>
             <div class="absolute bottom-4 left-5 right-5 grid grid-cols-2 gap-3">
               @for (p of destacados().slice(0, 4); track p.id) {
-                <a [routerLink]="['/detalle', p.id]" class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md hover:bg-white/15">
-                  <div class="flex items-start justify-between gap-3">
-                    <span class="text-4xl">{{ p.emoji }}</span>
-                    <span class="material-icons-round text-white/60">arrow_outward</span>
-                  </div>
+                <a [routerLink]="['/detalle', p.id]" class="rounded-2xl border border-white/10 bg-white/10 p-4 backdrop-blur-md hover:bg-white/15">  
+                <!-- Fotografía del producto -->
+                <div class="h-40 overflow-hidden bg-green-50">
+
+                  <img
+                    [src]="p.fotos || '/images/productos/sin-imagen.webp'"
+                    [alt]="'Fotografía de ' + p.nombre"
+                    loading="lazy"
+                    class="h-full w-full object-cover"
+                  />
+
+                </div>
+
                   <p class="mt-3 font-semibold">{{ p.nombre }}</p>
                   <p class="text-xs text-green-100">{{ p.ubicacion }}</p>
                 </a>
@@ -112,24 +120,74 @@ import { Producto } from '../../../core/domain/models/producto.model';
           </div>
 
           <div class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            @for (p of destacados(); track p.id) {
-              <a [routerLink]="['/detalle', p.id]" class="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-                <div class="grid h-40 place-items-center bg-gradient-to-br from-green-50 to-amber-50 text-7xl">{{ p.emoji }}</div>
-                <div class="p-4">
-                  <div class="flex items-start justify-between gap-2">
-                    <div class="min-w-0">
-                      <h3 class="truncate font-bold text-stone-900">{{ p.nombre }}</h3>
-                      <p class="mt-1 truncate text-xs text-stone-500">{{ p.vendedor }}</p>
-                    </div>
-                    <span class="material-icons-round text-stone-300">arrow_outward</span>
-                  </div>
-                  <div class="mt-4 flex items-center justify-between gap-2">
-                    <p class="font-bold text-brand">{{ p.precio | currency:'USD' }}</p>
-                    <span class="rounded-full bg-stone-100 px-2 py-1 text-[11px] text-stone-600">/ {{ p.unidad }}</span>
-                  </div>
+           
+        @for (p of destacados(); track p.id) {
+
+          <!-- Tarjeta del producto destacado -->
+          <a
+            [routerLink]="['/detalle', p.id]"
+            class="overflow-hidden rounded-3xl border border-stone-200
+                  bg-white shadow-sm transition hover:-translate-y-1
+                  hover:shadow-lg"
+          >
+
+            <!-- FOTOGRAFÍA DEL PRODUCTO -->
+            <div class="h-40 overflow-hidden bg-green-50">
+
+              <img
+                [src]="p.fotos || '/images/productos/sin-imagen.webp'"
+                [alt]="'Fotografía de ' + p.nombre"
+                loading="lazy"
+                class="h-full w-full object-cover"
+              />
+
+            </div>
+
+            <!-- INFORMACIÓN DEL PRODUCTO -->
+            <div class="p-4">
+
+              <div class="flex items-start justify-between gap-2">
+
+                <div class="min-w-0">
+
+                  <!-- Nombre del producto -->
+                  <h3 class="truncate font-bold text-stone-900">
+                    {{ p.nombre }}
+                  </h3>
+
+                  <!-- Nombre del agricultor: pendiente de consultar -->
+                  <p class="mt-1 truncate text-xs text-stone-500">
+                    Agricultor
+                  </p>
+
                 </div>
-              </a>
-            }
+
+                <!-- Icono para acceder al detalle -->
+                <span class="material-icons-round text-stone-300">
+                  arrow_outward
+                </span>
+
+              </div>
+
+              <!-- PRECIO Y UNIDAD -->
+              <div class="mt-4 flex items-center justify-between gap-2">
+
+                <p class="font-bold text-brand">
+                  {{ p.precio | currency:'USD' }}
+                </p>
+
+                <span class="rounded-full bg-stone-100 px-2 py-1 text-[11px] text-stone-600">
+                  / {{ p.unidad }}
+                </span>
+
+              </div>
+
+            </div>
+
+          </a>
+
+        }
+
           </div>
         </div>
       </section>

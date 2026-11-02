@@ -1,7 +1,7 @@
 
 import { Injectable, signal } from '@angular/core';
 import { onAuthStateChanged } from 'firebase/auth';
-import { doc, onSnapshot, getDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
 
 import { auth, db } from
@@ -13,66 +13,135 @@ export class AuthSessionService {
 
     // Indica si Firebase encontró un usuario autenticado.
     readonly autenticado = signal(false);
-    //Le indica a firebase  todavía esta comprobnando y se se guardo la sesionex
-    readonly cargando = signal(true);
 
     // Guarda el nombre que mostraremos en la barra superior.
     readonly nombre = signal<string | null>(null);
+
+    readonly rol = signal<"admin" | "agricultor" | "consumidor" | null>(null);
+
+    readonly cargandoRol = signal(true);
 
     constructor() {
 
         // Escucha automáticamente los cambios de autenticación.
         onAuthStateChanged(auth, async (usuario) => {
 
-            // Si no hay usuario, limpiamos el estado de sesión.
+            this.rol.set(null);
+            this.cargandoRol.set(true);
+
+            // ==========================================
+            // 1. USUARIO SIN SESIÓN
+            // ==========================================
             if (!usuario) {
                 this.autenticado.set(false);
                 this.nombre.set(null);
-                this.cargando.set(false);
+                this.cargandoRol.set(false);
 
-                console.log('Sin sesion activa');
+                console.log('Sin sesión activa');
                 return;
             }
 
-            // Firebase Authentication encontró un usuario.
+            // ==========================================
+            // 2. USUARIO AUTENTICADO
+            // ==========================================
             this.autenticado.set(true);
 
-            // Mostramos temporalmente su correo mientras carga el perfil.
-            this.nombre.set(usuario.displayName || usuario.email);
+            //Nombre temporal mientras consultamos n Forestoringuies XD
 
-            console.log('Usuario autenticado:', usuario.uid);
+            this.nombre.set(
+                usuario.displayName || usuario.email
+
+            );
+
+            console.log('Usuario Autneticado:', usuario.uid);
 
             try {
-                // Buscamos el perfil utilizando el UID de Authentication.
-                const referencia = doc(db, 'usuarios', usuario.uid);
-                const resultado = await getDoc(referencia);
+                // ==========================================
+                // 3. CONSULTAR PERFIL EN FIRESTORE
+                // ==========================================
 
-                // Si existe el documento, obtenemos su nombre.
-                if (resultado.exists() && auth.currentUser?.uid === usuario.uid) {
+
+                // El UID corresponde al documento del usuario.
+                const referencia = doc(
+                    db,
+                    'usuarios',
+                    usuario.uid
+                );
+
+
+                //recuperamos la informacion del perfil ps
+                const resultado = await getDoc(referencia);
+                if (auth.currentUser?.uid !== usuario.uid) {
+
+                    return;
+                }
+                if (resultado.exists()) {
+                    const datos = resultado.data();
+
+                    // Recuperamos el dato del agricultor o cconsumido
                     this.nombre.set(
-                        resultado.data()['nombre'] || usuario.email
-                    );
+                        datos['nombre'] || usuario.email
+                    ); // ==========================================
+                    // 4. IDENTIFICAR ROL
+                    // ==========================================
+                    const rolFirestore = datos['rol'];
+                    if (
+                        rolFirestore === 'agricultor' ||
+                        rolFirestore === 'consumidor' ||
+                        rolFirestore === 'admin'
+
+                    ) {
+                        this.rol.set(rolFirestore);
+                    } else {
+                        //Role desconochido o no register
+
+                        this.rol.set(null);
+                    }
                 }
 
             } catch (error) {
-                // Si falla Firestore, conservamos el correo como alternativa.
-                console.error('Error al consultar perfil:', error);
+                //Si falla Firestore, no concedemos ningun role XD
+
+                if (auth.currentUser?.uid === usuario.uid) {
+                    this.rol.set(null);
+                } console.error(
+                    'Erro al consultar perfil',
+                    error
+                );
+
+            } finally {
+                if (auth.currentUser?.uid === usuario.uid) {
+                    this.cargandoRol.set(false);
+
+                }
             }
-
         });
-    }
 
-    // Devuelve el UID del usuario conectado.
-    // Este método también lo utiliza ProfilePageComponent.
+
+
+
+
+    }
+    /**
+     * OBTENER UID
+     *
+     * Espera a que Firebase determine el estado
+     * inicial de autenticación y devuelve el UID.
+     */
     async obtenerUid(): Promise<string | null> {
+
         await auth.authStateReady();
 
         return auth.currentUser?.uid ?? null;
+
+
+
+
+
+
+
+
+
+
     }
-
-
-
-
-
-
 }

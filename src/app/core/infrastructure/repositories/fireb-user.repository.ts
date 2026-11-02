@@ -35,7 +35,7 @@ export class FirebaseUserRepository extends UserRepository {
 
                 creadoEn:
                     datos['creadoEn'] instanceof Timestamp ?
-                        datos['CreadoEn'].toDate()
+                        datos['creadoEn'].toDate()
                         : null,
                 actualizadoEn:
                     datos['actualizadoEn'] instanceof Timestamp ?
@@ -69,7 +69,7 @@ export class FirebaseUserRepository extends UserRepository {
 
             creadoEn:
                 datos['creadoEn'] instanceof Timestamp ?
-                    datos['CreadoEn'].toDate()
+                    datos['creadoEn'].toDate()
                     : null,
             actualizadoEn:
                 datos['actualizadoEn'] instanceof Timestamp ?

@@ -65,7 +65,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/products/pages/editar-producto.component')
             .then(m => m.EditarProductoComponent)
-      }
+      },
+      {
+        path: 'productos',
+        loadComponent: () =>
+          import('./features/products/pages/catalogo-productos.component')
+            .then(m => m.CatalogoProductosComponent)
+      },
 
 
 

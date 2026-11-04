@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { Producto } from '../../domain/models/producto.model';
 import { ProductRepository } from '../../domain/repositories/product.repository';
 
+
 @Injectable({
     providedIn: 'root'
 })
@@ -24,6 +25,7 @@ export class GetSellerProductUseCase {
 
 
 }
+
 
 
 

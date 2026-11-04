@@ -188,7 +188,84 @@ export class FirebaseProductRepository extends ProductRepository {
         } as Producto;
     }
 
+    // ==========================================
+    // 7. DESACTIVAR O REACTIVAR PUBLICACIÓN
+    // ==========================================
+
+    async cambiarEstadoProducto(
+        id: string,
+        vendedorUID: string,
+        estado: 'publicado' | 'inactivo'
+    ): Promise<void> {
+
+        if (!id.trim() || !vendedorUID.trim()) {
+            throw new Error('Producto o usuario no válido.');
+        }
+
+        // Comprobar la sesión autenticada.
+        if (auth.currentUser?.uid !== vendedorUID) {
+            throw new Error('No tienes permiso para esta operación.');
+        }
+
+        const referencia = doc(db, 'productos', id);
+
+        await runTransaction(db, async (transaccion) => {
+
+            const resultado = await transaccion.get(referencia);
+
+            if (!resultado.exists()) {
+                throw new Error('La publicación no existe.');
+            }
+
+            const datos = resultado.data();
+
+            // Verificar que el producto sea del agricultor.
+            if (datos['vendedorUID'] !== vendedorUID) {
+                throw new Error(
+                    'No puedes administrar publicaciones de otros agricultores.'
+                );
+            }
+
+            // No permitimos reactivar productos sin existencias.
+            if (estado === 'publicado') {
+
+                const cantidad = datos['cantidadDisponible'];
+
+                if (
+                    typeof cantidad !== 'number' ||
+                    !Number.isFinite(cantidad) ||
+                    cantidad <= 0
+                ) {
+                    throw new Error(
+                        'Debes registrar existencias antes de reactivar.'
+                    );
+                }
+
+                if (datos['estado'] !== 'inactivo') {
+                    throw new Error('La publicación no está inactiva.');
+                }
+            }
+
+            // Evitar desactivar una publicación ya inactiva.
+            if (
+                estado === 'inactivo' &&
+                datos['estado'] === 'inactivo'
+            ) {
+                throw new Error('La publicación ya está desactivada.');
+            }
+
+            transaccion.update(referencia, {
+                estado,
+                actualizadoEn: serverTimestamp()
+            });
+
+        });
+    }
 }
+
+
+
+
 
 
 

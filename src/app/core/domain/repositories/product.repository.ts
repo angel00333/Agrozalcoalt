@@ -56,6 +56,19 @@ export abstract class ProductRepository {
     ): Promise<void>;
 
 
+    /**
+     * Cambiar el estado de una publicación.
+     * Solo el propietario puede administrarla.
+     */
+    abstract cambiarEstadoProducto(
+        id: string,
+        vendedorUID: string,
+        estado: 'publicado' | 'inactivo'
+    ): Promise<void>;
+
+
+
+
 }
 
 

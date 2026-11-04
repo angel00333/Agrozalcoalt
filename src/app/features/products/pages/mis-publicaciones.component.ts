@@ -1,10 +1,12 @@
 import {
-    Component,
-    OnInit,
-    computed,
-    inject,
-    signal
+  Component,
+  OnInit,
+  computed,
+  inject,
+  signal
 } from '@angular/core';
+
+import { ChangeProductStatusUSeCase } from '../../../core/use-cases/products/chage-products-status.use-case';
 
 import { CurrencyPipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
@@ -16,11 +18,11 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
 import { GetSellerProductUseCase } from '../../../core/use-cases/products/get-seller-products.use-case';
 
 @Component({
-    selector: 'app-mis-publicaciones',
-    standalone: true,
-    imports: [RouterLink, CurrencyPipe],
+  selector: 'app-mis-publicaciones',
+  standalone: true,
+  imports: [RouterLink, CurrencyPipe],
 
-    template: `
+  template: `
 
     <!-- PANEL DEL AGRICULTOR -->
     <section
@@ -229,19 +231,54 @@ import { GetSellerProductUseCase } from '../../../core/use-cases/products/get-se
                       }
 
 
-                    <!-- Acciones del propietario -->
-                    @if (producto.id) {
-                    <div class="mt-4 grid grid-cols-1 gap-2">
+                    
+                  <!-- Acciones disponibles para el propietario -->
+                  @if (producto.id) {
 
-                        <a
+                    <div class="mt-4 grid grid-cols-2 gap-2">
+
+                      <!-- Editar publicación -->
+                      <a
                         [routerLink]="['/editar-producto', producto.id]"
-                        class="flex items-center justify-center gap-2 rounded-xl bg-[#e9a91d] px-4 py-2.5 text-sm font-bold text-[#173923] transition hover:bg-[#f7c44d]"
-                        >
-                        ✎ Editar producto
-                        </a>
+                        class="flex items-center justify-center rounded-xl bg-[#e9a91d] px-3 py-2.5 text-center text-xs font-bold text-[#173923]"
+                      >
+                        ✎ Editar
+                      </a>
+
+                      <!-- Desactivar / Reactivar -->
+                      <button
+                        type="button"
+                        (click)="alternarEstado(producto)"
+                        [disabled]="
+                          productoEnProceso() !== null ||
+                          (
+                            producto.estado === 'inactivo' &&
+                            producto.cantidadDisponible <= 0
+                          )
+                        "
+                        class="rounded-xl bg-[#e5f2e6] px-3 py-2.5 text-xs font-bold text-[#173923] transition hover:bg-white disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        @if (productoEnProceso() === producto.id) {
+                          Guardando...
+                        } @else if (producto.estado === 'inactivo') {
+                          Reactivar
+                        } @else {
+                          Desactivar
+                        }
+                      </button>
 
                     </div>
+
+                    @if (
+                      producto.estado === 'inactivo' &&
+                      producto.cantidadDisponible <= 0
+                    ) {
+                      <p class="mt-2 text-xs text-[#f7c44d]">
+                        Registra existencias antes de reactivar.
+                      </p>
                     }
+                  }
+
 
 
                     </div>
@@ -265,62 +302,119 @@ import { GetSellerProductUseCase } from '../../../core/use-cases/products/get-se
 })
 export class MisPublicacionesPageComponent implements OnInit {
 
-    // Servicios de sesión y consulta.
-    private readonly sesion = inject(AuthSessionService);
-    private readonly consultar = inject(GetSellerProductUseCase);
+  // Servicios de sesión y consulta.
+  private readonly sesion = inject(AuthSessionService);
+  private readonly consultar = inject(GetSellerProductUseCase);
+  private readonly cambiarEstado = inject(ChangeProductStatusUSeCase);
 
-    // Estado de la pantalla.
-    readonly productos = signal<Producto[]>([]);
-    readonly cargando = signal(true);
-    readonly mensajeError = signal<string | null>(null);
+  // Estado de la pantalla.
+  readonly productos = signal<Producto[]>([]);
+  readonly cargando = signal(true);
+  readonly mensajeError = signal<string | null>(null);
+  readonly productoEnProceso = signal<string | null>(null);
 
-    // Estadísticas automáticas.
-    readonly publicados = computed(() =>
-        this.productos().filter(p => p.estado === 'publicado').length
-    );
+  // Estadísticas automáticas.
+  readonly publicados = computed(() =>
+    this.productos().filter(p => p.estado === 'publicado').length
+  );
 
-    readonly agotados = computed(() =>
-        this.productos().filter(p => p.estado === 'agotado').length
-    );
+  readonly agotados = computed(() =>
+    this.productos().filter(p => p.estado === 'agotado').length
+  );
 
-    ngOnInit(): void {
-        void this.cargarProductos();
+
+  ngOnInit(): void {
+    void this.cargarProductos();
+  }
+
+
+
+  // Consultar las publicaciones del usuario autenticado.
+  async cargarProductos(): Promise<void> {
+
+    this.cargando.set(true);
+    this.mensajeError.set(null);
+
+    try {
+
+      const uid = await this.sesion.obtenerUid();
+
+      if (!uid) {
+        throw new Error('Debes iniciar sesión.');
+      }
+
+      const resultado = await this.consultar.execute(uid);
+
+      this.productos.set(resultado);
+
+    } catch (error) {
+
+      console.error('Error al cargar productos:', error);
+
+      this.mensajeError.set(
+        error instanceof Error
+          ? error.message
+          : 'No se pudieron consultar los productos.'
+      );
+
+    } finally {
+
+      this.cargando.set(false);
+
     }
 
-    // Consultar las publicaciones del usuario autenticado.
-    async cargarProductos(): Promise<void> {
 
-        this.cargando.set(true);
-        this.mensajeError.set(null);
+  }
 
-        try {
 
-            const uid = await this.sesion.obtenerUid();
+  // ==========================================
+  // DESACTIVAR O REACTIVAR PRODUCTO
+  // ==========================================
+  async alternarEstado(producto: Producto): Promise<void> {
 
-            if (!uid) {
-                throw new Error('Debes iniciar sesión.');
-            }
+    if (!producto.id || this.productoEnProceso()) {
+      return;
+    }
 
-            const resultado = await this.consultar.execute(uid);
+    const accion =
+      producto.estado === 'inactivo'
+        ? 'reactivar'
+        : 'desactivar';
 
-            this.productos.set(resultado);
+    this.productoEnProceso.set(producto.id);
+    this.mensajeError.set('');
 
-        } catch (error) {
+    try {
 
-            console.error('Error al cargar productos:', error);
+      const uid = await this.sesion.obtenerUid();
 
-            this.mensajeError.set(
-                error instanceof Error
-                    ? error.message
-                    : 'No se pudieron consultar los productos.'
-            );
+      if (!uid) {
+        throw new Error('Debes iniciar sesión.');
+      }
 
-        } finally {
+      await this.cambiarEstado.execute(
+        producto.id,
+        uid,
+        accion
+      );
 
-            this.cargando.set(false);
+      // Recargar los productos y los indicadores.
+      await this.cargarProductos();
 
-        }
+    } catch (error) {
+
+      this.mensajeError.set(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible cambiar el estado.'
+      );
+
+    } finally {
+
+      this.productoEnProceso.set(null);
 
     }
+  }
+
 
 }

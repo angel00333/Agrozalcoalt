@@ -1,14 +1,15 @@
 
 import { CurrencyPipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { RouterLink, } from '@angular/router';
+import { FaseLunarComponent } from '../components/fase-lunar.component';
 
 import { Producto } from '../../../core/domain/models/producto.model';
 import { AuthSessionService } from '../../../shared/services/auth-session.service';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink, CurrencyPipe],
+  imports: [RouterLink, CurrencyPipe, FaseLunarComponent],
 
   template: `
     <div class="landing-page">
@@ -99,8 +100,8 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
                     Comprar productos
                   </a>
 
-                }
 
+                }
               }
 
             </div>
@@ -185,6 +186,26 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
         </div>
       </section>
 
+
+
+              <!-- =============================================
+                  CALENDARIO LUNAR
+                  CONSUMIDORES Y AGRICULTORES
+                  ============================================= -->
+
+              @if (
+                !sesion.cargandoRol() &&
+                sesion.autenticado() &&
+                (
+                  sesion.rol() === 'consumidor' ||
+                  sesion.rol() === 'agricultor'
+                )
+              ) {
+                <div class="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+                  <app-fase-lunar />
+                </div>
+              }
+
       <!-- ==========================================
            5. CARACTERÍSTICAS DE AGROZALCOALT
            ========================================== -->
@@ -242,6 +263,8 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
         </div>
 
       </section>
+
+
 
       <!-- ==========================================
            6. CATÁLOGO DE PRODUCTOS DESTACADOS

@@ -52,23 +52,26 @@ import { AuthSessionService } from '../services/auth-session.service';
           @for (item of desktopItems; track item.link) {
 
             @if (
-              item.link !== '/publicar' &&
-              item.link !== '/mis-publicaciones' ||
+              (
+                item.link !== '/publicar' &&
+                item.link !== '/mis-publicaciones'
+              ) ||
               (
                 !sesion.cargandoRol() &&
                 sesion.autenticado() &&
                 sesion.rol() === 'agricultor'
               )
-            ) {
+            )
+             {
 
-              <a
-                [routerLink]="item.link"
-                routerLinkActive="bg-white/12 text-white"
-                [routerLinkActiveOptions]="{ exact: item.link === '/' }"
-                class="rounded-full px-4 py-2 text-sm font-medium text-green-50 hover:bg-white/10"
-              >
-                {{ item.label }}
-              </a>
+            <a
+              [routerLink]="item.link"
+              routerLinkActive="bg-white/12 text-white"
+              [routerLinkActiveOptions]="{ exact: item.link === '/' }"
+              class="rounded-full px-4 py-2 text-sm font-medium text-green-50 hover:bg-white/10"
+            >
+              {{ item.label }}
+            </a>
 
             }
 
@@ -121,6 +124,8 @@ import { AuthSessionService } from '../services/auth-session.service';
               </span>
 
             </button>
+
+            
 
           </div>
 

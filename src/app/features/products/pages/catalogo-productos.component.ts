@@ -6,11 +6,11 @@ import { GetProductsUseCase, } from '../../../core/use-cases/products/get-produc
 import { AuthSessionService } from '../../../shared/services/auth-session.service';
 
 @Component({
-    selector: 'app-catalogo-productos',
-    standalone: true,
-    imports: [],
+  selector: 'app-catalogo-productos',
+  standalone: true,
+  imports: [],
 
-    template: `
+  template: `
     <section class="rounded-3xl bg-[#075235] p-4 text-[#fff8e8] sm:p-6">
 
       <!-- Encabezado -->
@@ -312,7 +312,28 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
             Contacto del agricultor
           </h4>
 
-          @if (cargandoContacto()) {
+          @if(sesion.cargandoRol()){
+
+            <p class="text-sm text-[#d2e5d5]">
+              Verificando sesión...
+            </p>
+          } @else if (
+        !sesion.autenticado() ||
+        (
+          sesion.rol() !== 'consumidor' &&
+          sesion.rol() !== 'agricultor'
+        )
+          ) {
+
+            <div class="rounded-xl bg-[#103a29] p-4 text-center">
+
+              <p class="text-sm text-[#d2e5d5]">
+                Inicia sesión para contactar al agricultor.
+              </p>
+
+            </div>
+
+          } @else if (cargandoContacto()) {
 
             <p class="text-sm text-[#d2e5d5]">
               Consultando datos del agricultor...
@@ -405,7 +426,7 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
     </section>
   `,
 
-    styles: [`
+  styles: [`
     :host {
       display: block;
       position: relative;
@@ -417,209 +438,209 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
 })
 export class CatalogoProductosComponent implements OnInit {
 
-    private readonly consultar = inject(GetProductsUseCase);
+  private readonly consultar = inject(GetProductsUseCase);
 
-    readonly sesion = inject(AuthSessionService);
+  readonly sesion = inject(AuthSessionService);
 
-    readonly productos = signal<Producto[]>([]);
-    readonly uidActual = signal<string | null>(null);
+  readonly productos = signal<Producto[]>([]);
+  readonly uidActual = signal<string | null>(null);
 
-    readonly busqueda = signal('');
-    readonly categoria = signal('Todas');
+  readonly busqueda = signal('');
+  readonly categoria = signal('Todas');
 
-    readonly cargando = signal(true);
-    readonly mensajeError = signal('');
+  readonly cargando = signal(true);
+  readonly mensajeError = signal('');
 
 
-    // Publicaciones que puede ver el usuario.
-    readonly productosVisibles = computed(() => {
+  // Publicaciones que puede ver el usuario.
+  readonly productosVisibles = computed(() => {
 
-        const esAgricultor = this.sesion.rol() === 'agricultor';
-        const uid = this.uidActual();
+    const esAgricultor = this.sesion.rol() === 'agricultor';
+    const uid = this.uidActual();
 
-        return this.productos().filter(producto => {
+    return this.productos().filter(producto => {
 
-            if (producto.estado !== 'publicado') {
-                return false;
-            }
+      if (producto.estado !== 'publicado') {
+        return false;
+      }
 
-            if (
-                producto.categoria === 'Insumos agrícolas' &&
-                !esAgricultor
-            ) {
-                return false;
-            }
+      if (
+        producto.categoria === 'Insumos agrícolas' &&
+        !esAgricultor
+      ) {
+        return false;
+      }
 
-            if (
-                esAgricultor &&
-                uid &&
-                producto.vendedorUID === uid
-            ) {
-                return false;
-            }
+      if (
+        esAgricultor &&
+        uid &&
+        producto.vendedorUID === uid
+      ) {
+        return false;
+      }
 
-            return true;
-        });
+      return true;
     });
+  });
 
-    // Categorías disponibles para el usuario.
-    readonly categoriasDisponibles = computed(() => {
+  // Categorías disponibles para el usuario.
+  readonly categoriasDisponibles = computed(() => {
 
-        const categorias = this.productosVisibles()
-            .map(producto => producto.categoria);
+    const categorias = this.productosVisibles()
+      .map(producto => producto.categoria);
 
-        return [...new Set(categorias)].sort();
+    return [...new Set(categorias)].sort();
+  });
+
+  // Filtrar por texto y categoría.
+  readonly productosFiltrados = computed(() => {
+
+    const texto = this.normalizar(this.busqueda());
+    const seleccionada = this.categoria();
+
+    return this.productosVisibles().filter(producto => {
+
+      const coincideCategoria =
+        seleccionada === 'Todas' ||
+        producto.categoria === seleccionada;
+
+      const contenido = this.normalizar([
+        producto.nombre,
+        producto.descripcion,
+        producto.categoria,
+        producto.ubicacion
+      ].join(' '));
+
+      return coincideCategoria && contenido.includes(texto);
     });
+  });
 
-    // Filtrar por texto y categoría.
-    readonly productosFiltrados = computed(() => {
+  ngOnInit(): void {
+    void this.cargarProductos();
+  }
 
-        const texto = this.normalizar(this.busqueda());
-        const seleccionada = this.categoria();
+  // Consultar publicaciones de Firebase.
+  async cargarProductos(): Promise<void> {
 
-        return this.productosVisibles().filter(producto => {
+    this.cargando.set(true);
+    this.mensajeError.set('');
 
-            const coincideCategoria =
-                seleccionada === 'Todas' ||
-                producto.categoria === seleccionada;
+    try {
 
-            const contenido = this.normalizar([
-                producto.nombre,
-                producto.descripcion,
-                producto.categoria,
-                producto.ubicacion
-            ].join(' '));
+      const [productos, uid] = await Promise.all([
+        this.consultar.execute(),
+        this.sesion.obtenerUid()
+      ]);
 
-            return coincideCategoria && contenido.includes(texto);
-        });
-    });
+      this.productos.set(productos);
+      this.uidActual.set(uid);
 
-    ngOnInit(): void {
-        void this.cargarProductos();
+    } catch (error) {
+
+      this.mensajeError.set(
+        error instanceof Error
+          ? error.message
+          : 'No fue posible cargar los productos.'
+      );
+
+    } finally {
+      this.cargando.set(false);
     }
+  }
 
-    // Consultar publicaciones de Firebase.
-    async cargarProductos(): Promise<void> {
+  limpiarFiltros(): void {
+    this.busqueda.set('');
+    this.categoria.set('Todas');
+  }
 
-        this.cargando.set(true);
-        this.mensajeError.set('');
+  private normalizar(valor: string): string {
 
-        try {
+    return valor
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim();
+  }
 
-            const [productos, uid] = await Promise.all([
-                this.consultar.execute(),
-                this.sesion.obtenerUid()
-            ]);
+  numeroWhatsApp(numero: string): string {
+    const digitos = numero.replace(/\D/g, '');
 
-            this.productos.set(productos);
-            this.uidActual.set(uid);
+    return digitos.length === 8
+      ? '503' + digitos
+      : digitos;
+  }
 
-        } catch (error) {
-
-            this.mensajeError.set(
-                error instanceof Error
-                    ? error.message
-                    : 'No fue posible cargar los productos.'
-            );
-
-        } finally {
-            this.cargando.set(false);
-        }
-    }
-
-    limpiarFiltros(): void {
-        this.busqueda.set('');
-        this.categoria.set('Todas');
-    }
-
-    private normalizar(valor: string): string {
-
-        return valor
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .toLowerCase()
-            .trim();
-    }
-
-    numeroWhatsApp(numero: string): string {
-        const digitos = numero.replace(/\D/g, '');
-
-        return digitos.length === 8
-            ? '503' + digitos
-            : digitos;
-    }
-
-    readonly productoSeleccionado = signal<Producto | null>(null);
+  readonly productoSeleccionado = signal<Producto | null>(null);
 
 
 
-    private readonly usuarios = inject(UserRepository);
+  private readonly usuarios = inject(UserRepository);
 
-    readonly contactoVendedor = signal<{
-        nombre: string;
-        correo: string;
-        telefono: string;
-    } | null>(null);
+  readonly contactoVendedor = signal<{
+    nombre: string;
+    correo: string;
+    telefono: string;
+  } | null>(null);
 
-    readonly cargandoContacto = signal(false);
-    readonly errorContacto = signal('');
-
-
-    async abrirDetalle(producto: Producto): Promise<void> {
-
-        this.productoSeleccionado.set(producto);
-        this.contactoVendedor.set(null);
-        this.cargandoContacto.set(true);
-        this.errorContacto.set('');
-
-        try {
-
-            const usuario = await this.usuarios.obtenerPorId(
-                producto.vendedorUID
-            );
-
-            if (this.productoSeleccionado() !== producto) {
-                return;
-            }
-
-            if (usuario?.rol !== 'agricultor') {
-                throw new Error('No se encontró al agricultor.');
-            }
-
-            this.contactoVendedor.set({
-                nombre: usuario.nombre ?? 'Agricultor',
-                correo: usuario.correo ?? '',
-                telefono: usuario.telefono ?? ''
-            });
-
-        } catch (error) {
-
-            if (this.productoSeleccionado() === producto) {
-                this.errorContacto.set(
-                    'No se pudo consultar el contacto del agricultor.'
-                );
-            }
-
-        } finally {
-
-            if (this.productoSeleccionado() === producto) {
-                this.cargandoContacto.set(false);
-            }
+  readonly cargandoContacto = signal(false);
+  readonly errorContacto = signal('');
 
 
-        }
+  async abrirDetalle(producto: Producto): Promise<void> {
 
-    }
+    this.productoSeleccionado.set(producto);
+    this.contactoVendedor.set(null);
+    this.cargandoContacto.set(true);
+    this.errorContacto.set('');
 
-    // ==========================================
-    // CERRAR MODAL DE INFORMACIÓN
-    // ==========================================
-    cerrarDetalle(): void {
-        this.productoSeleccionado.set(null);
-        this.contactoVendedor.set(null);
+    try {
+
+      const usuario = await this.usuarios.obtenerPorId(
+        producto.vendedorUID
+      );
+
+      if (this.productoSeleccionado() !== producto) {
+        return;
+      }
+
+      if (usuario?.rol !== 'agricultor') {
+        throw new Error('No se encontró al agricultor.');
+      }
+
+      this.contactoVendedor.set({
+        nombre: usuario.nombre ?? 'Agricultor',
+        correo: usuario.correo ?? '',
+        telefono: usuario.telefono ?? ''
+      });
+
+    } catch (error) {
+
+      if (this.productoSeleccionado() === producto) {
+        this.errorContacto.set(
+          'No se pudo consultar el contacto del agricultor.'
+        );
+      }
+
+    } finally {
+
+      if (this.productoSeleccionado() === producto) {
         this.cargandoContacto.set(false);
-        this.errorContacto.set('');
+      }
+
+
     }
+
+  }
+
+  // ==========================================
+  // CERRAR MODAL DE INFORMACIÓN
+  // ==========================================
+  cerrarDetalle(): void {
+    this.productoSeleccionado.set(null);
+    this.contactoVendedor.set(null);
+    this.cargandoContacto.set(false);
+    this.errorContacto.set('');
+  }
 
 
 }

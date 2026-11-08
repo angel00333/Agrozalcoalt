@@ -82,7 +82,7 @@ a:active {
 .brand-logo-image {
   display: inline-block;
   flex: 0 0 auto;
-  background-image: url('./assets/branding/agrozalcoalt-logo.png');
+  background-image: url('/agrozalcoalt-logo.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;

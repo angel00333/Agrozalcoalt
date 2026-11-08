@@ -213,51 +213,39 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
 
         <div class="mx-auto max-w-7xl">
 
-          <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div class="grid gap-4 md:grid-cols-2">
 
             @for (feature of features; track feature.title) {
 
-              @if (
-                feature.link !== '/publicar' ||
-                (
-                  !sesion.cargandoRol() &&
-                  sesion.autenticado() &&
-                  sesion.rol() === 'agricultor'
-                )
-              ) {
+              <a
+                [routerLink]="feature.link"
+                class="group rounded-3xl border border-stone-200/80 bg-white/75 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
+              >
 
-                <a
-                  [routerLink]="feature.link"
-                  class="group rounded-3xl border border-stone-200/80 bg-white/75 p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-md"
-                >
-
-                  <div class="grid h-12 w-12 place-items-center rounded-2xl bg-green-100 text-brand">
-                    <span class="material-icons-round">
-                      {{ feature.icon }}
-                    </span>
-                  </div>
-
-                  <h2 class="mt-4 text-lg font-bold text-brand-dark">
-                    {{ feature.title }}
-                  </h2>
-
-                  <p class="mt-2 text-sm leading-relaxed text-stone-600">
-                    {{ feature.description }}
-                  </p>
-
-                  <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand">
-                    Ver más
-                    <span class="material-icons-round text-lg">
-                      arrow_forward
-                    </span>
+                <div class="grid h-12 w-12 place-items-center rounded-2xl bg-green-100 text-brand">
+                  <span class="material-icons-round">
+                    {{ feature.icon }}
                   </span>
+                </div>
 
-                </a>
+                <h2 class="mt-4 text-lg font-bold text-brand-dark">
+                  {{ feature.title }}
+                </h2>
 
-              }
+                <p class="mt-2 text-sm leading-relaxed text-stone-600">
+                  {{ feature.description }}
+                </p>
+
+                <span class="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand">
+                  Ver más
+                  <span class="material-icons-round text-lg">
+                    arrow_forward
+                  </span>
+                </span>
+
+              </a>
 
             }
-
           </div>
 
         </div>
@@ -579,27 +567,15 @@ export class HomePageComponent {
   readonly features = [
     {
       icon: 'storefront',
-      title: 'Catálogo agrícola',
+      title: 'Catálogo de productos',
       description: 'Descubre cosechas e insumos disponibles y conecta directamente con quienes los ofrecen.',
       link: '/productos',
     },
     {
       icon: 'forum',
-      title: 'Asesoría especializada',
+      title: 'Asesoría',
       description: 'Consulta dudas de cultivo y comercialización dentro de un espacio orientado al sector agrícola.',
       link: '/asesoria',
-    },
-    {
-      icon: 'location_on',
-      title: 'Geolocalización',
-      description: 'Identifica productos y oportunidades según la ubicación de productores y compradores.',
-      link: '/productos',
-    },
-    {
-      icon: 'inventory_2',
-      title: 'Publica tus productos',
-      description: 'Registra cosechas o insumos con precio, disponibilidad, ubicación y descripción.',
-      link: '/publicar',
     },
   ];
 

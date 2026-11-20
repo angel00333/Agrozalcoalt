@@ -60,3 +60,5 @@ src/app/core/infrastructure/repositories/fireb-user.repository.ts
 .env.local
 .env.*
 !.env.example
+.firebase/
+*.bak

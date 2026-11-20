@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "itinerarioagricola"
+  },
+  "targets": {
+    "itinerarioagricola": {
+      "hosting": {
+        "agrozalcoalt": [
+          "agrozalcoalt"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}

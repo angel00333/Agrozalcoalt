@@ -357,43 +357,152 @@ import { AuthSessionService } from '../../../shared/services/auth-session.servic
 
       </section>
 
-      <!-- ==========================================
-           7. COMUNIDAD AGROZALCOALT
-           ========================================== -->
-      <section class="bg-[#fbfaf6] px-5 pb-14 sm:px-8 lg:px-10">
+      
+    <!-- ==========================================
+        7. COMUNIDAD AGROZALCOALT
+        ========================================== -->
 
-        <div class="community-banner mx-auto max-w-7xl overflow-hidden rounded-[2rem] p-7 text-white sm:p-10">
+    <section class="bg-[#fbfaf6] px-5 pb-14 sm:px-8 lg:px-10">
 
-          <div class="relative z-10 max-w-2xl">
+      <div
+        class="community-banner relative mx-auto max-w-7xl
+              overflow-hidden rounded-[2rem] p-7
+              text-white sm:p-10"
+      >
 
-            <span class="material-icons-round text-4xl text-amber-300">
+        <!-- CONTENIDO PRINCIPAL -->
+        <div class="relative z-10 max-w-2xl">
+
+          <!-- Decoración superior -->
+          <div class="flex items-center gap-3 text-amber-300">
+
+            <span class="material-icons-round text-4xl">
               landscape
             </span>
 
-            <h2 class="mt-3 text-3xl font-black sm:text-4xl">
-              Impulsando un mejor campo, juntos.
-            </h2>
+            <span class="text-2xl">🌿</span>
 
-            <p class="mt-3 leading-relaxed text-green-50">
-              Agrozalcoalt acerca productores y compradores, facilita la publicación de cosechas y crea un punto de encuentro para asesoría y comercio agrícola.
-            </p>
+            <span class="h-px w-14 bg-amber-300/60"></span>
 
-            <a
-              routerLink="/login"
-              class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-white px-5 py-3 font-semibold text-brand-dark"
+            <span class="text-xl">🌾</span>
+
+          </div>
+
+          <!-- Título -->
+          <h2 class="mt-3 text-3xl font-black sm:text-4xl">
+            Impulsando un mejor campo, juntos.
+          </h2>
+
+          <!-- Descripción -->
+          <p class="mt-3 leading-relaxed text-green-50">
+            Agrozalcoalt acerca productores y compradores,
+            facilita la publicación de cosechas y crea un
+            punto de encuentro para asesoría y comercio agrícola.
+          </p>
+
+          <!-- Decoración agrícola inferior -->
+          <div class="mt-7 flex flex-wrap items-center gap-3">
+
+            <div
+              class="flex h-14 w-14 items-center justify-center
+                    rounded-2xl border border-white/20
+                    bg-white/10 shadow-sm backdrop-blur-sm"
             >
-              Formar parte de la comunidad
+              <span class="text-3xl">🌱</span>
+            </div>
 
-              <span class="material-icons-round text-lg">
-                arrow_forward
+            <div
+              class="flex h-14 w-14 items-center justify-center
+                    rounded-2xl border border-white/20
+                    bg-white/10 shadow-sm backdrop-blur-sm"
+            >
+              <span class="text-3xl">🌿</span>
+            </div>
+
+            <div
+              class="flex h-14 w-14 items-center justify-center
+                    rounded-2xl border border-white/20
+                    bg-white/10 shadow-sm backdrop-blur-sm"
+            >
+              <span class="text-3xl">🌾</span>
+            </div>
+
+            <div class="ml-1 flex flex-col gap-1">
+
+              <span class="text-sm font-semibold text-amber-300">
+                Sembrando oportunidades
               </span>
-            </a>
+
+              <span class="text-xs text-green-50/80">
+                🌻 Cultivando el futuro de El Salvador
+              </span>
+
+            </div>
+
+          </div>
+
+          <!-- Línea decorativa -->
+          <div class="mt-6 flex items-center gap-2">
+
+            <div class="h-1 w-12 rounded-full bg-amber-300"></div>
+
+            <div class="h-1 w-5 rounded-full bg-white/40"></div>
+
+            <div class="h-1 w-2 rounded-full bg-white/20"></div>
 
           </div>
 
         </div>
 
-      </section>
+        <!-- =====================================
+            MARCA DE AGUA DE DESARROLLADORES
+            ===================================== -->
+
+        <div
+          class="pointer-events-none relative z-10 mt-9
+                border-t border-white/10 pt-5
+                text-left sm:text-right
+                lg:absolute lg:bottom-8 lg:right-10
+                lg:mt-0 lg:border-0 lg:pt-0"
+        >
+
+          <div
+            class="inline-flex flex-col gap-1
+                  text-[10px] leading-relaxed
+                  text-white/40 sm:text-xs"
+          >
+
+            <div
+              class="mb-2 flex items-center gap-2
+                    text-amber-300/70 sm:justify-end"
+            >
+              <span class="material-icons-round text-base">
+                eco
+              </span>
+
+              <span class="font-semibold tracking-widest">
+                DESARROLLADO POR
+              </span>
+            </div>
+
+            <span>ChatGPT</span>
+
+            <span>Ángel Maximiliano Olán Hércules</span>
+
+            <span>Aida Patricia Flores Magaña</span>
+
+            <span>Rodrigo Fernando Valentin Ramirez</span>
+
+            <span>Nilson Geovani Morán Lúe</span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
 
       <!-- ==========================================
            8. PIE DE PÁGINA

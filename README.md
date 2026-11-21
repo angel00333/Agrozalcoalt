@@ -1,59 +1,177 @@
 # Agrozalcoalt
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.3.
+Aplicación web desarrollada como proyecto del Parcial 3 de la cátedra **Desarrollo de Aplicaciones Web**.
 
-## Development server
+Agrozalcoalt permite conectar a usuarios interesados en productos agrícolas con agricultores que publican sus productos. Utiliza Angular y Firebase para administrar la autenticación, los perfiles y las publicaciones.
 
-To start a local development server, run:
+## Funciones principales
+
+- Registro e inicio de sesión de usuarios.
+- Diferenciación de roles y protección de rutas para agricultores.
+- Publicación de productos agrícolas.
+- Consulta de un catálogo de productos.
+- Visualización y administración de publicaciones propias.
+- Edición y eliminación de productos.
+- Administración de información de perfil.
+- Organización de la aplicación mediante rutas y carga diferida de componentes.
+
+## Tecnologías utilizadas
+
+- Angular 22
+- TypeScript 6
+- RxJS 7
+- Angular Router
+- Firebase Authentication
+- Cloud Firestore
+- Tailwind CSS 4
+- PostCSS
+- Material Icons
+- SunCalc
+- Vitest
+- Angular CLI
+- Firebase Hosting
+- Netlify
+
+## Requisitos
+
+Antes de iniciar el proyecto necesita:
+
+- Node.js 20 o una versión compatible con Angular 22.
+- npm 11.
+- Angular CLI 22.
+- Una cuenta de Firebase.
+- Un proyecto creado en Firebase con Authentication y Firestore habilitados.
+
+## Instalación
+
+1. Clone el repositorio:
+
+```bash
+git clone https://github.com/angel00333/Agrozalcoalt.git
+cd Agrozalcoalt
+```
+
+2. Instale las dependencias:
+
+```bash
+npm install
+```
+
+3. Configure Firebase.
+
+El proyecto utiliza implementaciones de Firebase ubicadas dentro de `src/app/core/infrastructure/repositories`. La conexión debe declararse en el módulo de configuración correspondiente y exportar las instancias de Authentication y Firestore utilizadas por los repositorios.
+
+## Configuración de Firebase
+
+En la consola de Firebase:
+
+1. Active **Authentication**.
+2. Seleccione el método de inicio de sesión por correo electrónico y contraseña.
+3. Cree una base de datos de **Cloud Firestore**.
+4. Configure las siguientes colecciones:
+
+- `usuarios`: información de los usuarios y sus roles.
+- `productos`: publicaciones agrícolas.
+
+Ejemplo de documento en `usuarios`:
+
+```json
+{
+  "nombre": "Usuario ejemplo",
+  "correo": "usuario@example.com",
+  "telefono": "0000-0000",
+  "departamento": "San Salvador",
+  "direccion": "Dirección de ejemplo",
+  "rol": "agricultor",
+  "estadoPerfil": "activo"
+}
+```
+
+Ejemplo de documento en `productos`:
+
+```json
+{
+  "nombre": "Producto agrícola",
+  "descripcion": "Descripción del producto",
+  "precio": 10,
+  "cantidad": 20,
+  "unidad": "unidades",
+  "usuarioId": "ID_DEL_USUARIO"
+}
+```
+
+Antes de publicar la aplicación en Internet, configure las reglas de seguridad de Authentication y Firestore en lugar de utilizar permisos abiertos.
+
+## Ejecución local
+
+Inicie el servidor de desarrollo:
+
+```bash
+npm start
+```
+
+O utilice directamente Angular CLI:
 
 ```bash
 ng serve
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Acceda desde el navegador a:
 
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
+```text
+http://localhost:4200
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+## Construcción de producción
+
+Genere los archivos optimizados:
 
 ```bash
-ng generate --help
+npm run build
 ```
 
-## Building
+Los archivos se guardarán en:
 
-To build the project run:
+```text
+dist/Agrozalcoalt/browser
+```
+
+## Despliegue
+
+### Firebase Hosting
+
+Antes del despliegue, tenga instalado Firebase CLI:
 
 ```bash
-ng build
+npm install -g firebase-tools
+firebase login
+firebase use --add
+firebase deploy
 ```
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+El archivo `firebase.json` está configurado para publicar el contenido de `dist/Agrozalcoalt/browser`.
 
-## Running unit tests
+### Netlify
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+El archivo `netlify.toml` define:
+
+- Comando de construcción: `npm run build -- --configuration production`
+- Directorio público: `dist/Agrozalcoalt/browser`
+- Redirección de rutas hacia `index.html`
+
+## Pruebas
+
+Ejecute las pruebas unitarias con:
 
 ```bash
-ng test
+npm test
 ```
 
-## Running end-to-end tests
+Las pruebas utilizan Vitest a través de Angular CLI.
 
-For end-to-end (e2e) testing, run:
+## Integrantes del proyecto
 
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+- geovani-moran
+- angel0033
+- rodrigo-valentin
+- aida-patricia
